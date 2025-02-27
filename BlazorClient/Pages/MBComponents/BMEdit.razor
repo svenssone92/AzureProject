@@ -1,0 +1,52 @@
+﻿@inject BasicModelService BasicModelService
+
+
+<form class="modal-form" @onsubmit="Submit">
+    <div class="modal-header">
+        <h4>Edit</h4>
+    </div>
+    <div class="modal-body">
+        <p><strong>ID:</strong> @basicModelClone.Id</p>
+        <label>
+            Name:
+            <InputText @bind-Value="basicModelClone.Name" />
+        </label>
+    </div>
+    <div class="modal-footer">
+        <button type="submit" class="btn-base btn-base-Ne">Save</button>
+        <button type="button" class="btn-base btn-base-Se" @onclick="Cancel">Cancel</button>
+    </div>
+</form>
+
+@code {
+    [Parameter] public required BasicModelDTO basicModel { get; set; }
+
+    [Parameter] public EventCallback OnClose { get; set; }
+
+    private BasicModelDTO basicModelClone = new();
+
+    protected override void OnInitialized()
+    {
+        // För att man inte ska se ej sparade editeringar
+        basicModelClone = new BasicModelDTO
+            {
+                Id = basicModel.Id,
+                Name = basicModel.Name
+            };
+    }
+
+    private async Task Submit()
+    {
+        await BasicModelService.UpdateBasicModelAsync(basicModelClone);
+
+        //Uppdaterar också den hämtade listan
+        basicModel.Name = basicModelClone.Name;
+
+        await OnClose.InvokeAsync();
+    }
+
+    private async Task Cancel()
+    {
+        await OnClose.InvokeAsync();
+    }
+}

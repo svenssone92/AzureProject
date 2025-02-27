@@ -1,0 +1,23 @@
+﻿<div class="modal-header">
+    <h4>Details</h4>
+</div>
+
+<div class="modal-body">
+    <p><strong>ID:</strong> @basicModel.Id</p>
+    <p><strong>Name:</strong> @basicModel.Name</p>
+</div>
+
+<div class="modal-footer">
+    <button class="btn-base btn-base-Se" @onclick="CloseModal">Close</button>
+</div>
+
+@code {
+    [Parameter] public required BasicModelDTO basicModel { get; set; }
+
+    [Parameter] public EventCallback OnClose { get; set; }
+
+    private async Task CloseModal()
+    {
+        await OnClose.InvokeAsync();
+    }
+}

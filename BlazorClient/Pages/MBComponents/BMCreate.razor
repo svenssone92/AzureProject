@@ -1,0 +1,43 @@
+﻿@inject BasicModelService BasicModelService
+
+
+<form class="modal-form" @onsubmit="Submit">
+    <div class="modal-header">
+        <h4>New Model</h4>
+    </div>
+
+    <div class="modal-body">
+        <label>
+            Name:
+            <InputText @bind-Value="newModel.Name" />
+        </label>
+    </div>
+
+    <div class="modal-footer">
+        <button type="submit" class="btn-base btn-base-Ne">Save</button>
+        <button type="button" class="btn-base btn-base-Se" @onclick="Cancel">Cancel</button>
+    </div>
+</form>
+
+@code {
+    [Parameter] public EventCallback<BasicModelDTO> OnClose { get; set; }
+
+    private BasicModelDTO newModel = new();
+
+    private async Task Submit()
+    {
+        var createdModel = await BasicModelService.AddBasicModelAsync(newModel);
+
+        newModel = new();
+
+        if (createdModel != null)
+        {
+            await OnClose.InvokeAsync(createdModel);
+        }
+    }
+
+    private async Task Cancel()
+    {
+        await OnClose.InvokeAsync(null);
+    }
+}

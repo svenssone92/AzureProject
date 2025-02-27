@@ -1,0 +1,150 @@
+﻿@page "/"
+@using BlazorClient.Pages.MBComponents
+@inject BasicModelService BasicModelService
+
+<div class="page-container">
+    <div class="content-wrapper">
+
+        <h1>Basic Models</h1>
+
+        @if (basicModels is not null)
+        {
+            <table class="table mt-4">
+                <tr>
+                    <th>Id</th>
+                    <th>Name</th>
+                    <th></th>
+                </tr>
+                @foreach (var bM in basicModels)
+                {
+                    <tr>
+                        <td>@bM.Id</td>
+                        <td>@bM.Name</td>
+                        <td style="text-align: right;">
+                            <button class="btn-base btn-base-Se" @onclick="()=> OpenDetails(bM)">Details</button>
+                            <button class="btn-base" @onclick="()=> OpenEdit(bM)">Edit</button>
+                            <button class="btn-base btn-base-Da" @onclick="()=> OpenDelete(bM)">Delete</button>
+                        </td>
+                    </tr>
+                }
+                <tr style="border-top: solid gray 1px">
+                    <td></td>
+                    <td></td>
+                    <td style="text-align: right;">
+                        <button class="btn-base btn-base-Ne" @onclick="()=> OpenCreate()">New Model</button>
+                    </td>
+                </tr>
+            </table>
+        }
+        else
+        {
+            <p>Loading...</p>
+        }
+    </div>
+</div>
+<!--Modals-->
+@if (isCreateOpen)
+{
+    <div class="modal-overlay">
+        <div class="modal-content" @onclick:stopPropagation>
+            <BMCreate OnClose="CloseCreate" />
+        </div>
+    </div>
+}
+@if (isDetailsOpen)
+{
+    <div class="modal-overlay">
+        <div class="modal-content" @onclick:stopPropagation>
+            <BMDetails basicModel="selectedItem" OnClose="CloseDetails" />
+        </div>
+    </div>
+}
+@if (isEditsOpen)
+{
+    <div class="modal-overlay">
+        <div class="modal-content" @onclick:stopPropagation>
+            <BMEdit basicModel="selectedItem" OnClose="CloseEdit" />
+        </div>
+    </div>
+}
+@if (isDeleteOpen)
+{
+    <div class="modal-overlay">
+        <div class="modal-content" @onclick:stopPropagation>
+            <BMDelete basicModel="selectedItem" OnClose="CloseDelete" />
+        </div>
+    </div>
+}
+
+@code{
+    IEnumerable<BasicModelDTO>? basicModels;
+
+    BasicModelDTO? selectedItem = null;
+
+    bool isCreateOpen = false;
+    bool isDetailsOpen = false;
+    bool isEditsOpen = false;
+    bool isDeleteOpen = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        basicModels = await BasicModelService.GetBasicModels();
+    }
+
+    #region Handle Modals
+    private void OpenCreate()
+    {
+        isCreateOpen = true;
+    }
+    private void CloseCreate(BasicModelDTO bM)
+    {
+        if (basicModels is not null && bM is not null)
+        {
+            basicModels = basicModels.Append(bM).ToList();
+        }
+
+        selectedItem = null;
+        isCreateOpen = false;
+    }
+
+    private void OpenDetails(BasicModelDTO bM)
+    {
+        selectedItem = bM;
+        isDetailsOpen = true;
+    }
+    private void CloseDetails()
+    {
+        selectedItem = null;
+        isDetailsOpen = false;
+    }
+
+    private void OpenEdit(BasicModelDTO bM)
+    {
+        selectedItem = bM;
+        isEditsOpen = true;
+    }
+    private void CloseEdit()
+    {
+        selectedItem = null;
+        isEditsOpen = false;
+    }
+
+    private void OpenDelete(BasicModelDTO bM)
+    {
+        selectedItem = bM;
+        isDeleteOpen = true;
+    }
+    private void CloseDelete( int deletedId)
+    {
+        if (basicModels is not null && deletedId > 0) //Om något blev raderat så uppdateras listan.
+        {
+            basicModels = basicModels.Where(bm => bm.Id != deletedId).ToList();
+        }
+
+        selectedItem = null;
+        isDeleteOpen = false;
+    }
+    #endregion
+
+
+}

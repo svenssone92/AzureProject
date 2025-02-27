@@ -1,0 +1,35 @@
+﻿@inject BasicModelService BasicModelService
+<div class="modal-header">
+    <h4>Delete this model?</h4>
+</div>
+
+<div class="modal-body">
+    <p><strong>ID:</strong> @basicModel.Id</p>
+    <p><strong>Name:</strong> @basicModel.Name</p>
+</div>
+
+<div class="modal-footer">
+    <button class="btn-base btn-base-Da" @onclick="Delete">Delete</button>
+    <button class="btn-base btn-base-Se" @onclick="CloseModal">Cancel</button>
+</div>
+
+@code {
+    [Parameter] public required BasicModelDTO basicModel { get; set; }
+
+    [Parameter] public EventCallback<int> OnClose { get; set; }
+
+    private async Task Delete()
+    {
+        var response = await BasicModelService.DeleteBasicModelAsync(basicModel.Id);
+
+        if(response)
+        {
+            await OnClose.InvokeAsync(basicModel.Id);
+        }
+
+    }
+    private async Task CloseModal()
+    {
+        await OnClose.InvokeAsync(0);
+    }
+}
